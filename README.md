@@ -9,7 +9,7 @@ a command line tool for Amazon Redshift temporary authorization with AWS IAM
 
 ### Usage 
 
-#### as Basically
+#### as Basically CLI
 
 ```shell 
 $ redshift-credentials --endpoint default.012345678910.ap-northeast-1.redshift-serverless.amazonaws.com --output json    

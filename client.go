@@ -70,14 +70,19 @@ type GetCredentialsInput struct {
 	DbUser            *string
 	DbName            *string
 	DurationSeconds   *int32
+	address           *string
+	port              *string
 }
 
 type GetCredentialsOutput struct {
-	Endpoint        *string    `json:",omitempty" yaml:"endpoint,omitempty"`
-	DbPassword      *string    `json:",omitempty" yaml:"db_password,omitempty"`
-	DbUser          *string    `json:",omitempty" yaml:"db_user,omitempty"`
-	Expiration      *time.Time `json:",omitempty" yaml:"expiration,omitempty"`
-	NextRefreshTime *time.Time `json:",omitempty" yaml:"next_refresh_time,omitempty"`
+	WorkgroupName     *string    `json:",omitempty" yaml:"workgroup_name,omitempty"`
+	ClusterIdentifier *string    `json:",omitempty" yaml:"cluster_identifier,omitempty"`
+	Endpoint          *string    `json:",omitempty" yaml:"endpoint,omitempty"`
+	Port              *string    `json:",omitempty" yaml:"port,omitempty"`
+	DbPassword        *string    `json:",omitempty" yaml:"db_password,omitempty"`
+	DbUser            *string    `json:",omitempty" yaml:"db_user,omitempty"`
+	Expiration        *time.Time `json:",omitempty" yaml:"expiration,omitempty"`
+	NextRefreshTime   *time.Time `json:",omitempty" yaml:"next_refresh_time,omitempty"`
 }
 
 type redshiftListItem struct {
@@ -85,6 +90,8 @@ type redshiftListItem struct {
 	InitialDBName *string
 	Type          string
 	Identifier    string
+	Address       string
+	Port          string
 }
 
 func (item redshiftListItem) String() string {
@@ -112,6 +119,8 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 		if input.DbName == nil {
 			input.DbName = aws.String(strings.TrimLeft(u.Path, "/"))
 		}
+		input.address = aws.String(u.Host)
+		input.port = aws.String(u.Port())
 	}
 	if input.WorkgroupName == nil && input.ClusterIdentifier == nil {
 		redshiftList := make([]redshiftListItem, 0)
@@ -135,8 +144,9 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 					Identifier:    *cluster.ClusterIdentifier,
 					DBMasterUser:  cluster.MasterUsername,
 					InitialDBName: cluster.DBName,
+					Address:       *cluster.Endpoint.Address,
+					Port:          fmt.Sprintf("%d", cluster.Endpoint.Port),
 				}
-
 				client.logger.Printf("[debug] %s is found", item)
 				redshiftList = append(redshiftList, item)
 			}
@@ -160,6 +170,8 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 					item := redshiftListItem{
 						Type:       redshiftListItemServerless,
 						Identifier: *workgroup.WorkgroupName,
+						Address:    *workgroup.Endpoint.Address,
+						Port:       fmt.Sprintf("%d", *workgroup.Endpoint.Port),
 					}
 					client.logger.Printf("[debug] %s is found", item)
 					redshiftList = append(redshiftList, item)
@@ -178,7 +190,7 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 			items := make(map[string]redshiftListItem, len(redshiftList))
 			lines := make([]string, 0, len(redshiftList))
 			for i, item := range redshiftList {
-				line := fmt.Sprintf("[%d] %s", i+1, item.String())
+				line := fmt.Sprintf("[%d] %s\t%s", i+1, item.String(), item.Address)
 				items[line] = item
 				lines = append(lines, line)
 			}
@@ -205,7 +217,8 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 		case redshiftListItemServerless:
 			input.WorkgroupName = &selected.Identifier
 		}
-
+		input.address = &selected.Address
+		input.port = &selected.Port
 	}
 	if input.ClusterIdentifier != nil {
 		return client.getCredentialsForProvisioned(ctx, input)
@@ -229,6 +242,8 @@ func (client *Client) getCredentialsForProvisioned(ctx context.Context, input *G
 			return nil, fmt.Errorf("cluster `%s` is not found", *input.ClusterIdentifier)
 		}
 		input.DbUser = clusters.Clusters[0].MasterUsername
+		input.address = clusters.Clusters[0].Endpoint.Address
+		input.port = aws.String(fmt.Sprintf("%d", clusters.Clusters[0].Endpoint.Port))
 	}
 	output, err := client.provisioned.GetClusterCredentials(ctx, &redshift.GetClusterCredentialsInput{
 		ClusterIdentifier: input.ClusterIdentifier,
@@ -239,12 +254,33 @@ func (client *Client) getCredentialsForProvisioned(ctx context.Context, input *G
 	if err != nil {
 		return nil, err
 	}
+	if input.address == nil {
+		clusters, err := client.provisioned.DescribeClusters(ctx, &redshift.DescribeClustersInput{
+			ClusterIdentifier: input.ClusterIdentifier,
+		})
+		if err != nil {
+			var ae smithy.APIError
+			if errors.As(err, &ae) && strings.HasPrefix(ae.ErrorCode(), "AccessDenied") {
+				client.logger.Println("[debug] failed to endpoint info  because redshift:DescribeClusters is AccessDenied")
+			} else {
+				client.logger.Printf("[debug] failed to redshift:DescribeClusters, %v", err)
+			}
+		} else {
+			if len(clusters.Clusters) != 0 {
+				input.address = clusters.Clusters[0].Endpoint.Address
+				input.port = aws.String(fmt.Sprintf("%d", clusters.Clusters[0].Endpoint.Port))
+			}
+		}
+
+	}
 	return &GetCredentialsOutput{
-		Endpoint:        input.Endpoint,
-		DbPassword:      output.DbPassword,
-		DbUser:          output.DbUser,
-		Expiration:      output.Expiration,
-		NextRefreshTime: nil,
+		ClusterIdentifier: input.ClusterIdentifier,
+		Endpoint:          input.address,
+		Port:              input.port,
+		DbPassword:        output.DbPassword,
+		DbUser:            output.DbUser,
+		Expiration:        output.Expiration,
+		NextRefreshTime:   nil,
 	}, nil
 }
 
@@ -257,8 +293,26 @@ func (client *Client) getCredentialsForServerless(ctx context.Context, input *Ge
 	if err != nil {
 		return nil, err
 	}
+	if input.address == nil {
+		workgroup, err := client.serverless.GetWorkgroup(ctx, &redshiftserverless.GetWorkgroupInput{
+			WorkgroupName: input.WorkgroupName,
+		})
+		if err != nil {
+			var ae smithy.APIError
+			if errors.As(err, &ae) && strings.HasPrefix(ae.ErrorCode(), "AccessDenied") {
+				client.logger.Println("[debug] failed to endpoint info  because redshift-serverless:GetWorkgroup is AccessDenied")
+			} else {
+				client.logger.Printf("[debug] failed to redshift-serverless:GetWorkgroup, %v", err)
+			}
+		} else {
+			input.address = workgroup.Workgroup.Endpoint.Address
+			input.port = aws.String(fmt.Sprintf("%d", *workgroup.Workgroup.Endpoint.Port))
+		}
+	}
 	return &GetCredentialsOutput{
-		Endpoint:        input.Endpoint,
+		WorkgroupName:   input.WorkgroupName,
+		Endpoint:        input.address,
+		Port:            input.port,
 		DbPassword:      output.DbPassword,
 		DbUser:          output.DbUser,
 		Expiration:      output.Expiration,

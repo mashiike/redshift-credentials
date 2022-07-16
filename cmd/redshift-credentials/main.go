@@ -96,8 +96,17 @@ func main() {
 				log.Fatalf("[error] failed to encode output, %v", err)
 			}
 		default:
+			if output.ClusterIdentifier != nil {
+				fmt.Printf("export %sPROVISIONED_CLUSTER=%s\n", prefix, *output.ClusterIdentifier)
+			}
+			if output.WorkgroupName != nil {
+				fmt.Printf("export %sSERVERLESS_WORKGROUP=%s\n", prefix, *output.WorkgroupName)
+			}
 			if output.Endpoint != nil {
 				fmt.Printf("export %sENDPOINT=%s\n", prefix, *output.Endpoint)
+			}
+			if output.Port != nil {
+				fmt.Printf("export %sPORT=%s\n", prefix, *output.Port)
 			}
 			fmt.Printf("export %sDB_PASSWORD=%s\n", prefix, *output.DbPassword)
 			fmt.Printf("export %sDB_USER=%s\n", prefix, *output.DbUser)
@@ -109,8 +118,17 @@ func main() {
 		return
 	}
 	env := os.Environ()
+	if output.ClusterIdentifier != nil {
+		env = append(env, fmt.Sprintf("%sPROVISIONED_CLUSTER=%s", prefix, *output.ClusterIdentifier))
+	}
+	if output.WorkgroupName != nil {
+		env = append(env, fmt.Sprintf("%sSERVERLESS_WORKGROUP=%s", prefix, *output.WorkgroupName))
+	}
 	if output.Endpoint != nil {
 		env = append(env, fmt.Sprintf("%sENDPOINT=%s", prefix, *output.Endpoint))
+	}
+	if output.Port != nil {
+		env = append(env, fmt.Sprintf("%sPORT=%s", prefix, *output.Port))
 	}
 	env = append(env, fmt.Sprintf("%sDB_PASSWORD=%s", prefix, *output.DbPassword))
 	env = append(env, fmt.Sprintf("%sDB_USER=%s", prefix, *output.DbUser))
@@ -201,7 +219,6 @@ func runInternalFilter(items []string) (string, error) {
 			fmt.Fprintf(os.Stderr, "%s is ambiguous\n", input)
 		}
 	}
-	return "", errors.New("not implemented yet")
 }
 
 // ***********************************************************************

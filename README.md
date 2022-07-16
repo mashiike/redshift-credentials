@@ -28,7 +28,6 @@ The endpoints can be from a provisioned cluster.
 If you do not specify anything, you will be asked to which Redshift you want to temporarily authenticate
 ```shell
 $ redshift-credentials
-$ go run main.go                                                                                               
 [1] default     provisioned cluster     default.xxxxxxxxxxxx.ap-northeast-1.redshift.amazonaws.com
 [2] default     serverless workgroup    default.012345678910.ap-northeast-1.redshift-serverless.amazonaws.com
 Enter number: 

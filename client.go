@@ -18,11 +18,13 @@ import (
 
 type Client struct {
 	logger      *log.Logger
+	filter      func([]string) (string, error)
 	provisioned *redshift.Client
 	serverless  *redshiftserverless.Client
 }
 
 type Options struct {
+	Filter             func([]string) (string, error)
 	Logger             *log.Logger
 	ProvisionedOptions *redshift.Options
 	ServerlessOptions  *redshiftserverless.Options
@@ -55,6 +57,7 @@ func NewFromConfig(cfg aws.Config, optFns ...func(*Options)) *Client {
 
 	return &Client{
 		logger:      opts.Logger,
+		filter:      opts.Filter,
 		provisioned: redshift.NewFromConfig(cfg, provisionedOptFns...),
 		serverless:  redshiftserverless.NewFromConfig(cfg, serverlessOptFns...),
 	}
@@ -167,10 +170,29 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 		if len(redshiftList) == 0 {
 			return nil, fmt.Errorf("input parameters Endpoint, WorkgroupName and ClusterIdentifier were not given, and Redshift search and could not find them")
 		}
-		if len(redshiftList) > 1 {
-			return nil, fmt.Errorf("automatic selection was not possible because %d redshifts were found", len(redshiftList))
-		}
 		selected := redshiftList[0]
+		if len(redshiftList) > 1 {
+			if client.filter == nil {
+				return nil, fmt.Errorf("automatic selection was not possible because %d redshifts were found", len(redshiftList))
+			}
+			items := make(map[string]redshiftListItem, len(redshiftList))
+			lines := make([]string, 0, len(redshiftList))
+			for i, item := range redshiftList {
+				line := fmt.Sprintf("[%d] %s", i+1, item.String())
+				items[line] = item
+				lines = append(lines, line)
+			}
+			selectedLine, err := client.filter(lines)
+			if err != nil {
+				return nil, fmt.Errorf("manual selection was failed, %v", err)
+			}
+			var ok bool
+			selected, ok = items[selectedLine]
+			if !ok {
+				return nil, fmt.Errorf("manual selection was failed, filter return invalid line")
+			}
+			client.logger.Printf("[debug] redshift %s selected", selected)
+		}
 		switch selected.Type {
 		case redshiftListItemProvisioned:
 			input.ClusterIdentifier = &selected.Identifier

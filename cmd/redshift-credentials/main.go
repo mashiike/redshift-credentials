@@ -2,20 +2,22 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
 
-	"encoding/json"
-
+	"github.com/Songmu/prompter"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/fatih/color"
 	"github.com/fujiwara/logutils"
 	redshiftcredentials "github.com/mashiike/redshift-credentials"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -66,6 +68,7 @@ func main() {
 
 	client := redshiftcredentials.NewFromConfig(awsCfg, func(o *redshiftcredentials.Options) {
 		o.Logger = log.Default()
+		o.Filter = runFilter
 	})
 	output, err := client.GetCredentials(ctx, &redshiftcredentials.GetCredentialsInput{
 		Endpoint:          nilIfEmpty(endpoint),
@@ -133,3 +136,72 @@ func nilIfEmpty[T comparable](t T) *T {
 	}
 	return &t
 }
+
+// **********************************************************************
+// The code in the following section is implemented with reference to github.com/kayac/ecspresso.
+// code link: https://github.com/kayac/ecspresso/blob/86b25405f942a4ac30772c8c75c087f5bd5017f5/exec.go#L126
+// Please refer to https://github.com/kayac/ecspresso/blob/v1/LICENSE for the license of the original code.
+func runFilter(s []string) (string, error) {
+	filterCommand := os.Getenv("FILTER")
+	if filterCommand == "" {
+		return runInternalFilter(s)
+	}
+	var f *exec.Cmd
+	if strings.Contains(filterCommand, " ") {
+		f = exec.Command("sh", "-c", filterCommand)
+	} else {
+		f = exec.Command(filterCommand)
+	}
+	f.Stderr = os.Stderr
+	p, _ := f.StdinPipe()
+	go func() {
+		io.Copy(p, strings.NewReader(strings.Join(s, "\n")))
+		p.Close()
+	}()
+	b, err := f.Output()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to execute filter command")
+	}
+	return strings.TrimRight(string(b), "\n"), nil
+}
+
+// code link: https://github.com/kayac/ecspresso/blob/86b25405f942a4ac30772c8c75c087f5bd5017f5/exec.go#L126
+func runInternalFilter(items []string) (string, error) {
+	var input string
+	title := "number"
+	for _, item := range items {
+		fmt.Fprintln(os.Stderr, item)
+	}
+
+	for {
+		input = prompter.Prompt("Enter "+title, "")
+		if input == "" {
+			continue
+		}
+		var found []string
+		for _, item := range items {
+			item := item
+			if item == input {
+				found = []string{item}
+				break
+			} else if strings.HasPrefix(item, input) {
+				found = append(found, item)
+			} else if strings.HasPrefix(item, "["+input+"]") {
+				found = append(found, item)
+			}
+		}
+
+		switch len(found) {
+		case 0:
+			fmt.Fprintf(os.Stderr, "no such item %s\n", input)
+		case 1:
+			fmt.Fprintf(os.Stderr, "%s=%s\n", title, found[0])
+			return found[0], nil
+		default:
+			fmt.Fprintf(os.Stderr, "%s is ambiguous\n", input)
+		}
+	}
+	return "", errors.New("not implemented yet")
+}
+
+// ***********************************************************************

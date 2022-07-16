@@ -105,22 +105,34 @@ const (
 
 func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsInput) (*GetCredentialsOutput, error) {
 	if input.Endpoint != nil {
-		u, err := url.Parse(*input.Endpoint)
+		endpoint := *input.Endpoint
+		if !strings.HasPrefix(endpoint, "jdbc:redshift://") {
+			endpoint = strings.TrimPrefix(endpoint, "jdbc:")
+		}
+		if !strings.HasPrefix(endpoint, "redshift://") {
+			endpoint = "redshift://" + endpoint
+		}
+		u, err := url.Parse(endpoint)
 		if err != nil {
 			return nil, fmt.Errorf("endpoint can not parse as URL, %w", err)
 		}
-		parts := strings.Split(u.Host, ".")
-		if strings.HasSuffix(u.Host, "redshift.amazonaws.com") {
+		parts := strings.Split(u.Hostname(), ".")
+		if strings.HasSuffix(u.Hostname(), "redshift.amazonaws.com") {
 			input.ClusterIdentifier = aws.String(parts[0])
 		}
-		if strings.HasSuffix(u.Host, "redshift-serverless.amazonaws.com") {
+		if strings.HasSuffix(u.Hostname(), "redshift-serverless.amazonaws.com") {
 			input.WorkgroupName = aws.String(parts[0])
 		}
 		if input.DbName == nil {
-			input.DbName = aws.String(strings.TrimLeft(u.Path, "/"))
+			dbName := strings.TrimLeft(u.Path, "/")
+			if dbName != "" {
+				input.DbName = aws.String(dbName)
+			}
 		}
-		input.address = aws.String(u.Host)
-		input.port = aws.String(u.Port())
+		input.address = aws.String(u.Hostname())
+		if port := u.Port(); port != "" {
+			input.port = aws.String(port)
+		}
 	}
 	if input.WorkgroupName == nil && input.ClusterIdentifier == nil {
 		redshiftList := make([]redshiftListItem, 0)
@@ -254,7 +266,7 @@ func (client *Client) getCredentialsForProvisioned(ctx context.Context, input *G
 	if err != nil {
 		return nil, err
 	}
-	if input.address == nil {
+	if input.address == nil || input.port == nil {
 		clusters, err := client.provisioned.DescribeClusters(ctx, &redshift.DescribeClustersInput{
 			ClusterIdentifier: input.ClusterIdentifier,
 		})
@@ -293,7 +305,7 @@ func (client *Client) getCredentialsForServerless(ctx context.Context, input *Ge
 	if err != nil {
 		return nil, err
 	}
-	if input.address == nil {
+	if input.address == nil || input.port == nil {
 		workgroup, err := client.serverless.GetWorkgroup(ctx, &redshiftserverless.GetWorkgroupInput{
 			WorkgroupName: input.WorkgroupName,
 		})

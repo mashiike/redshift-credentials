@@ -21,6 +21,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var (
+	Version = "current"
+)
+
 func main() {
 	filter := &logutils.LevelFilter{
 		Levels: []logutils.LogLevel{"debug", "info", "notice", "warn", "error"},
@@ -35,6 +39,14 @@ func main() {
 		Writer:   os.Stderr,
 	}
 	log.SetOutput(filter)
+	flag.CommandLine.Usage = func() {
+		fmt.Fprintln(flag.CommandLine.Output(), "redshift-credentials is a command-like tool for Amazon Redshift temporary authorization")
+		fmt.Fprintln(flag.CommandLine.Output(), "version:", Version)
+		fmt.Fprintln(flag.CommandLine.Output(), "")
+		fmt.Fprintln(flag.CommandLine.Output(), "usage: redshift-credentials [options] [-- user command]")
+		fmt.Fprintln(flag.CommandLine.Output(), "")
+		flag.CommandLine.PrintDefaults()
+	}
 	var (
 		minLevel          string
 		endpoint          string

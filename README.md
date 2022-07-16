@@ -25,7 +25,7 @@ $ redshift-credentials --endpoint default.012345678910.ap-northeast-1.redshift-s
 ```
 The endpoints can be from a provisioned cluster.
 
-If you do not specify anything, you will be asked to which Redshift you want to temporarily authenticate
+If you do not specify anything, will be asked to which Redshift you want to temporarily authenticate
 ```shell
 $ redshift-credentials
 [1] default     provisioned cluster     default.xxxxxxxxxxxx.ap-northeast-1.redshift.amazonaws.com

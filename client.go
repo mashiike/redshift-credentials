@@ -163,31 +163,29 @@ func (client *Client) GetCredentials(ctx context.Context, input *GetCredentialsI
 				redshiftList = append(redshiftList, item)
 			}
 		}
-		if input.DbUser == nil {
-			sp := redshiftserverless.NewListWorkgroupsPaginator(client.serverless, &redshiftserverless.ListWorkgroupsInput{})
-			for sp.HasMorePages() {
-				output, err := sp.NextPage(ctx)
-				if err != nil {
-					var ae smithy.APIError
-					if !errors.As(err, &ae) {
-						return nil, err
-					}
-					if !strings.HasPrefix(ae.ErrorCode(), "AccessDenied") {
-						return nil, ae
-					}
-					client.logger.Println("[warn] Assume that the Redshift serverless workgroup does not exist because redshift-serverless:ListWorkgroups is AccessDenied")
-					break
+		sp := redshiftserverless.NewListWorkgroupsPaginator(client.serverless, &redshiftserverless.ListWorkgroupsInput{})
+		for sp.HasMorePages() {
+			output, err := sp.NextPage(ctx)
+			if err != nil {
+				var ae smithy.APIError
+				if !errors.As(err, &ae) {
+					return nil, err
 				}
-				for _, workgroup := range output.Workgroups {
-					item := redshiftListItem{
-						Type:       redshiftListItemServerless,
-						Identifier: *workgroup.WorkgroupName,
-						Address:    *workgroup.Endpoint.Address,
-						Port:       fmt.Sprintf("%d", *workgroup.Endpoint.Port),
-					}
-					client.logger.Printf("[debug] %s is found", item)
-					redshiftList = append(redshiftList, item)
+				if !strings.HasPrefix(ae.ErrorCode(), "AccessDenied") {
+					return nil, ae
 				}
+				client.logger.Println("[warn] Assume that the Redshift serverless workgroup does not exist because redshift-serverless:ListWorkgroups is AccessDenied")
+				break
+			}
+			for _, workgroup := range output.Workgroups {
+				item := redshiftListItem{
+					Type:       redshiftListItemServerless,
+					Identifier: *workgroup.WorkgroupName,
+					Address:    *workgroup.Endpoint.Address,
+					Port:       fmt.Sprintf("%d", *workgroup.Endpoint.Port),
+				}
+				client.logger.Printf("[debug] %s is found", item)
+				redshiftList = append(redshiftList, item)
 			}
 		}
 		client.logger.Printf("[debug] redshift %d found", len(redshiftList))

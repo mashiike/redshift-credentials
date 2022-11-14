@@ -115,13 +115,13 @@ func main() {
 				fmt.Printf("export %sSERVERLESS_WORKGROUP=%s\n", prefix, *output.WorkgroupName)
 			}
 			if output.Endpoint != nil {
-				fmt.Printf("export %sENDPOINT=%s\n", prefix, *output.Endpoint)
+				fmt.Printf("export %sHOST=%s\n", prefix, *output.Endpoint)
 			}
 			if output.Port != nil {
 				fmt.Printf("export %sPORT=%s\n", prefix, *output.Port)
 			}
-			fmt.Printf("export %sDB_PASSWORD=%s\n", prefix, *output.DbPassword)
-			fmt.Printf("export %sDB_USER=%s\n", prefix, *output.DbUser)
+			fmt.Printf("export %sPASSWORD=%s\n", prefix, *output.DbPassword)
+			fmt.Printf("export %sUSER=%s\n", prefix, *output.DbUser)
 			fmt.Printf("export %sEXPIRATION=%s\n", prefix, output.Expiration.Format(time.RFC3339Nano))
 			if output.NextRefreshTime != nil {
 				fmt.Printf("export %sNEXT_REFRESH_TIME=%s", prefix, output.NextRefreshTime.Format(time.RFC3339Nano))
@@ -137,13 +137,13 @@ func main() {
 		env = append(env, fmt.Sprintf("%sSERVERLESS_WORKGROUP=%s", prefix, *output.WorkgroupName))
 	}
 	if output.Endpoint != nil {
-		env = append(env, fmt.Sprintf("%sENDPOINT=%s", prefix, *output.Endpoint))
+		env = append(env, fmt.Sprintf("%sHOST=%s", prefix, *output.Endpoint))
 	}
 	if output.Port != nil {
 		env = append(env, fmt.Sprintf("%sPORT=%s", prefix, *output.Port))
 	}
-	env = append(env, fmt.Sprintf("%sDB_PASSWORD=%s", prefix, *output.DbPassword))
-	env = append(env, fmt.Sprintf("%sDB_USER=%s", prefix, *output.DbUser))
+	env = append(env, fmt.Sprintf("%sPASSWORD=%s", prefix, *output.DbPassword))
+	env = append(env, fmt.Sprintf("%sUSER=%s", prefix, *output.DbUser))
 	env = append(env, fmt.Sprintf("%sEXPIRATION=%s", prefix, output.Expiration.Format(time.RFC3339Nano)))
 	if output.NextRefreshTime != nil {
 		env = append(env, fmt.Sprintf("%sNEXT_REFRESH_TIME=%s", prefix, output.NextRefreshTime.Format(time.RFC3339Nano)))

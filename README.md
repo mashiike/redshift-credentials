@@ -35,9 +35,8 @@ Enter number:
 
 For more convenient use
 ```shell
-$ eval `redshift-credentials --endpoint default.012345678910.ap-northeast-1.redshift-serverless.amazonaws.com`
-$ export PGPASSWORD=$REDSHOFT_DB_PASSWORD
-$ psql -U $REDSHIFT_DB_USER -h $REDSHIFT_ENDPOINT -p $REDSHIFT_PORT -W dev
+$ eval `redshift-credentials --prefix PG --endpoint default.012345678910.ap-northeast-1.redshift-serverless.amazonaws.com`
+$ psql -U $PGUSER -h $PGHOST -p $PGPORT -W dev
 ```
 
 #### as Wrapper

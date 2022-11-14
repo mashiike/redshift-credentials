@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.3.0](https://github.com/mashiike/redshift-credentials/compare/v0.2.0...v0.3.0) - 2022-11-14
+- if search mode and set --db-user, no filter servelress by @mashiike in https://github.com/mashiike/redshift-credentials/pull/41
+
 ## [v0.2.0](https://github.com/mashiike/redshift-credentials/compare/v0.1.3...v0.2.0) - 2022-11-14
 - Bump github.com/aws/aws-sdk-go-v2/service/redshift from 1.26.0 to 1.26.14 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/36
 - Bump github.com/aws/aws-sdk-go-v2/service/redshiftserverless from 1.2.2 to 1.2.13 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/29

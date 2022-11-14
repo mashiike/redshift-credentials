@@ -319,6 +319,9 @@ func (client *Client) getCredentialsForServerless(ctx context.Context, input *Ge
 			input.port = aws.String(fmt.Sprintf("%d", *workgroup.Workgroup.Endpoint.Port))
 		}
 	}
+	if input.DbUser != nil {
+		client.logger.Println("[warn] The db user setting is ignored.")
+	}
 	return &GetCredentialsOutput{
 		WorkgroupName:   input.WorkgroupName,
 		Endpoint:        input.address,

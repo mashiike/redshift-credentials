@@ -16,8 +16,8 @@ github.com/aws/aws-sdk-go-v2/internal/ini v1.3.26 h1:Mza+vlnZr+fPKFKRq/lKGVvM6B/
 github.com/aws/aws-sdk-go-v2/internal/ini v1.3.26/go.mod h1:Y2OJ+P+MC1u1VKnavT+PshiEuGPyh/7DqxoDNij4/bg=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.19 h1:GE25AWCdNUPh9AOJzI9KIJnja7IwUc1WyUqz/JTyJ/I=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.19/go.mod h1:02CP6iuYP+IVnBX5HULVdSAku/85eHB2Y9EsFhrkEwU=
-github.com/aws/aws-sdk-go-v2/service/redshift v1.26.14 h1:s39wn3MH7CO8RfKbKMWqA93eI6hfaODPxY9UZdXCt/E=
-github.com/aws/aws-sdk-go-v2/service/redshift v1.26.14/go.mod h1:Ds+ElMoF3oxjYWJZofKeNeih3q3W7vzRCkRdnu/aOj8=
+github.com/aws/aws-sdk-go-v2/service/redshift v1.26.16 h1:qPa2cNgLUAMavzTD9joFfjU/ue5GE1gFsJPLD13yomw=
+github.com/aws/aws-sdk-go-v2/service/redshift v1.26.16/go.mod h1:Ds+ElMoF3oxjYWJZofKeNeih3q3W7vzRCkRdnu/aOj8=
 github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.2.13 h1:fusEc+Eh71495LI/SL9duquy7s0y1CoBE8cm6g+7dBc=
 github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.2.13/go.mod h1:iCGvQ7jpY2Ea3xyHnNmExEmRv3et3zbpt/byVhid7DU=
 github.com/aws/aws-sdk-go-v2/service/sso v1.11.25 h1:GFZitO48N/7EsFDt8fMa5iYdmWqkUDDB3Eje6z3kbG0=

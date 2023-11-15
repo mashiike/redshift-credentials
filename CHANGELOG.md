@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.3.2](https://github.com/mashiike/redshift-credentials/compare/v0.3.1...v0.3.2) - 2023-11-15
+- Bump github.com/aws/aws-sdk-go-v2 from 1.17.6 to 1.22.2 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/79
+
 ## [v0.3.1](https://github.com/mashiike/redshift-credentials/compare/v0.3.0...v0.3.1) - 2023-11-15
 - Feature/actions by @mashiike in https://github.com/mashiike/redshift-credentials/pull/77
 - Bump github.com/aws/aws-sdk-go-v2/config from 1.18.0 to 1.18.16 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/76

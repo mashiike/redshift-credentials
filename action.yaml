@@ -49,4 +49,4 @@ runs:
 
         echo "Adding ${RUNNER_TOOL_CACHE}/redshift-credentials to path..."
         echo "${RUNNER_TOOL_CACHE}/redshift-credentials" >> $GITHUB_PATH
-        "${RUNNER_TOOL_CACHE}/redshift-credentials/redshift-credentials" version
+        "${RUNNER_TOOL_CACHE}/redshift-credentials/redshift-credentials" --help

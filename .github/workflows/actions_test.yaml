@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: kayac/ecspresso@main
+      - uses: mashiike/redshift-credentials@main
         with:
           version: v0.3.0

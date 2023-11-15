@@ -1,0 +1,17 @@
+name: test action
+on:
+  push:
+    branches:
+      - main
+      - main-action-testing
+  workflow_dispatch:
+
+jobs:
+  install:
+    name: test action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kayac/ecspresso@main
+        with:
+          version: v0.3.0

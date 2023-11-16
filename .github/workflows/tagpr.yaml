@@ -10,14 +10,28 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: tagpr
-        uses: Songmu/tagpr@main
-      - name: Adding summary
-        run: echo '### ${{steps.tagpr.outputs.tag}}' >> $GITHUB_STEP_SUMMARY
+        uses: Songmu/tagpr@v1
+      - name: Checkout released
+        uses: actions/checkout@v4
         if: ${{ steps.tagpr.outputs.tag != '' }}
-      - uses: ./.github/actions/release
         with:
-          tag: ${{ steps.tagpr.outputs.tag }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ steps.tagpr.outputs.tag }}
+      - name: Set up Go
+        uses: actions/setup-go@v4
         if: ${{ steps.tagpr.outputs.tag != '' }}
+        with:
+            go-version: "1.21"
+      - name: Run Go Releaser
+        uses: goreleaser/goreleaser-action@v5
+        if: ${{ steps.tagpr.outputs.tag != '' }}
+        with:
+          version: latest
+          args: release
+      - name: Reset v0 tag
+        run: |
+          git tag -d v0
+          git tag -a v0 -m "${{ steps.tagpr.outputs.tag }}"
+          git push -d origin v0
+          git push origin v0

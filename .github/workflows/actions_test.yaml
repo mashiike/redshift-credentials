@@ -15,6 +15,6 @@ jobs:
       - uses: mashiike/redshift-credentials@main
         with:
           version: v0.3.0
-      - uses: mashiike/redshift-credentials@v0
+      - uses: mashiike/redshift-credentials@main
         with:
           version: latest

@@ -29,9 +29,3 @@ jobs:
         with:
           version: latest
           args: release
-      - name: Reset v0 tag
-        run: |
-          git tag -d v0
-          git tag -a v0 -m "${{ steps.tagpr.outputs.tag }}"
-          git push -d origin v0
-          git push origin v0

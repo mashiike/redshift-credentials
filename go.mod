@@ -6,7 +6,7 @@ require (
 	github.com/Songmu/prompter v0.5.1
 	github.com/aws/aws-sdk-go-v2 v1.23.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.16
-	github.com/aws/aws-sdk-go-v2/service/redshift v1.36.0
+	github.com/aws/aws-sdk-go-v2/service/redshift v1.37.0
 	github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.12.2
 	github.com/aws/smithy-go v1.17.0
 	github.com/fatih/color v1.13.0

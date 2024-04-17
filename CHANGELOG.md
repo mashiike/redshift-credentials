@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.3.4](https://github.com/mashiike/redshift-credentials/compare/v0.3.3...v0.3.4) - 2024-04-17
+- Bump actions/setup-go from 3 to 5 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/99
+- add group update config for dependabot by @mashiike in https://github.com/mashiike/redshift-credentials/pull/108
+- Bump github.com/fatih/color from 1.13.0 to 1.16.0 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/86
+- Add CREDITS Update Workflow on Tagpr by @mashiike in https://github.com/mashiike/redshift-credentials/pull/109
+- Bump github.com/fujiwara/logutils from 1.1.0 to 1.1.2 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/84
+- Bump github.com/aws/aws-sdk-go-v2/config from 1.18.16 to 1.27.11 by @dependabot in https://github.com/mashiike/redshift-credentials/pull/111
+
 ## [v0.3.3](https://github.com/mashiike/redshift-credentials/compare/v0.3.2...v0.3.3) - 2023-11-16
 
 ## [v0.3.2](https://github.com/mashiike/redshift-credentials/compare/v0.3.1...v0.3.2) - 2023-11-15

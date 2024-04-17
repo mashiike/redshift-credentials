@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.12.2
 	github.com/aws/smithy-go v1.17.0
 	github.com/fatih/color v1.16.0
-	github.com/fujiwara/logutils v1.1.0
+	github.com/fujiwara/logutils v1.1.2
 	github.com/pkg/errors v0.9.1
 	gopkg.in/yaml.v3 v3.0.1
 )

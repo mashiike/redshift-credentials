@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/redshift v1.36.0
 	github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.12.2
 	github.com/aws/smithy-go v1.20.2
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/fujiwara/logutils v1.1.2
 	github.com/pkg/errors v0.9.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -29,6 +29,6 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 )

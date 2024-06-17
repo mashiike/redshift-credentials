@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/Songmu/prompter v0.5.1
-	github.com/aws/aws-sdk-go-v2 v1.26.1
+	github.com/aws/aws-sdk-go-v2 v1.28.0
 	github.com/aws/aws-sdk-go-v2/config v1.27.11
 	github.com/aws/aws-sdk-go-v2/service/redshift v1.36.0
 	github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.12.2

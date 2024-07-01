@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.27.11
 	github.com/aws/aws-sdk-go-v2/service/redshift v1.36.0
 	github.com/aws/aws-sdk-go-v2/service/redshiftserverless v1.12.2
-	github.com/aws/smithy-go v1.20.2
+	github.com/aws/smithy-go v1.20.3
 	github.com/fatih/color v1.16.0
 	github.com/fujiwara/logutils v1.1.2
 	github.com/pkg/errors v0.9.1
